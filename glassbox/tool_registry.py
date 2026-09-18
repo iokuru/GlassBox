@@ -3,19 +3,18 @@ from __future__ import annotations
 import inspect
 import time
 from typing import Any, Callable, Dict, List, Optional
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, ConfigDict
 
 from glassbox.types import Observation
 
 
 class ToolDefinition(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     name: str
     description: str
     parameters_schema: Dict[str, Any]
     handler: Any = None
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class ToolRegistry:

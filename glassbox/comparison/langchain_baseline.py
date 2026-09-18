@@ -106,7 +106,7 @@ class StandardReActAgent:
 
 def compare_agents(task: str, inject_scenario: Optional[str] = None) -> Dict[str, Any]:
     from glassbox.engine import AgentEngine
-    from glassbox.failure.injection import FaultType
+    from glassbox.failure.injection import FaultInjector, FaultType
 
     engine = AgentEngine()
     if inject_scenario == "rate_limit":
@@ -121,10 +121,18 @@ def compare_agents(task: str, inject_scenario: Optional[str] = None) -> Dict[str
     gb_trace = engine.run(task)
     gb_duration = (time.perf_counter() - start_gb) * 1000.0
 
-    # Run Baseline
+    # Run Baseline with isolated fault injector
+    baseline_injector = FaultInjector()
+    if inject_scenario == "rate_limit":
+        baseline_injector.add_rule(
+            target_tool="search_web",
+            fault_type=FaultType.RATE_LIMIT_429,
+            trigger_on_call_count=1,
+        )
+
     baseline_tools = {
         "run_python_code": lambda **kwargs: engine.registry.execute("run_python_code", kwargs),
-        "search_web": lambda **kwargs: engine.fault_injector.intercept(
+        "search_web": lambda **kwargs: baseline_injector.intercept(
             "search_web", kwargs, lambda: engine.registry.execute("search_web", kwargs)
         ),
     }

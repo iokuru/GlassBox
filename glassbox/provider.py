@@ -41,7 +41,7 @@ class MockDebuggingProvider(BaseLLMProvider):
         h_lower = history_context.lower()
 
         # Check if previous step completed verification successfully
-        if "completed with no standard output" in h_lower or "tests passed" in h_lower or "result: [0, 1, 1, 2, 3, 5, 8]" in h_lower or "status: success" in h_lower:
+        if "tests passed" in h_lower or "result: [0, 1, 1, 2, 3, 5, 8]" in h_lower or "status: success" in h_lower:
             thought = Thought(
                 content="The sandbox verification passed successfully with expected outputs. The bug has been resolved."
             )
@@ -102,11 +102,14 @@ class MockDebuggingProvider(BaseLLMProvider):
             thought = Thought(
                 content="I need to reproduce the issue first by running the failing code snippet in the sandbox."
             )
-            # Default test snippet to run if broken code present in task
             code_match = re.search(r"```(?:python)?\n(.*?)```", task, re.DOTALL)
-            broken_code = code_match.group(1) if code_match else (
+            broken_code = code_match.group(1).strip() if code_match else (
                 "def fib(n):\n    return fib(n - 1) + fib(n - 2)\nprint(fib(5))\n"
             )
+            if broken_code.startswith("def ") and "print" not in broken_code and "assert" not in broken_code:
+                fn_name = broken_code.split()[1].split("(")[0]
+                broken_code += f"\nprint({fn_name}(5))\n"
+
             action = Action(
                 tool="run_python_code",
                 params={"code": broken_code},
