@@ -40,7 +40,7 @@ class CaptureProgress:
 
     def update(self, stage: str, status: str = "done") -> None:
         self.stages[stage] = status
-        symbol = "✓" if status == "done" else "⟳" if status == "running" else "✗"
+        symbol = "+" if status == "done" else "~" if status == "running" else "!"
         print(f"  [{symbol}] {stage}")
 
 
