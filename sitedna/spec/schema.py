@@ -88,6 +88,8 @@ class MouseParallaxLayer(BaseModel):
 
 
 class Interaction(BaseModel):
+    model_config = {"populate_by_name": True}
+
     target: str
     trigger: str
     from_value: str = Field(alias="from")
@@ -95,9 +97,6 @@ class Interaction(BaseModel):
     property: str = "clip-path"
     duration: int = 300
     ease: str = "ease-out"
-
-    class Config:
-        populate_by_name = True
 
 
 class MotionSpec(BaseModel):

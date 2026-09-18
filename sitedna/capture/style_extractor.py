@@ -33,7 +33,7 @@ STYLE_EXTRACTION_SCRIPT = """
         }
         if (rule instanceof CSSMediaRule) {
           const conditionText = rule.conditionText || rule.media?.mediaText;
-          const match = conditionText?.match(/min-width:\s*(\d+)px/);
+          const match = conditionText?.match(/min-width:\\s*(\\d+)px/);
           if (match) tokens.breakpoints.push(parseInt(match[1]));
         }
       }
