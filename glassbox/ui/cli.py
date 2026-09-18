@@ -21,13 +21,20 @@ from glassbox.types import (
     Thought,
 )
 
+# Ensure UTF-8 output encoding across Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 
 class TerminalCognitionRenderer:
     def __init__(self, console: Optional[Console] = None) -> None:
-        self.console = console or Console()
+        self.console = console or Console(highlight=False)
 
     def render_header(self, task: str) -> None:
-        title = Text("🔮 GLASS BOX — LIVE COGNITION TRACE", style="bold white on blue")
+        title = Text("[*] GLASS BOX -- LIVE COGNITION TRACE", style="bold white on blue")
         subtitle = Text("Autonomous Debugging Agent with Explicit Failure Taxonomy & Self-Healing", style="italic cyan")
         self.console.print()
         self.console.print(Panel(subtitle, title=title, border_style="blue", padding=(1, 2)))
@@ -40,7 +47,7 @@ class TerminalCognitionRenderer:
         self.console.print(
             Panel(
                 thought.content,
-                title="[bold cyan]🧠 Internal Reasoning (Thought)[/bold cyan]",
+                title="[bold cyan][Thought] Internal Reasoning[/bold cyan]",
                 border_style="cyan",
                 padding=(0, 1),
             )
@@ -54,7 +61,7 @@ class TerminalCognitionRenderer:
         self.console.print(
             Panel(
                 content,
-                title="[bold yellow]⚡ Proposed Action (Router)[/bold yellow]",
+                title="[bold yellow][Action] Proposed Tool Invocations[/bold yellow]",
                 border_style="yellow",
                 padding=(0, 1),
             )
@@ -63,7 +70,7 @@ class TerminalCognitionRenderer:
     def render_observation(self, obs: Observation) -> None:
         style = "red" if obs.is_error else "bright_blue"
         tag = "[bold red]FAILED[/bold red]" if obs.is_error else "[bold green]OK[/bold green]"
-        title = f"[bold {style}]🔍 Observation [{tag}][/bold {style}]"
+        title = f"[bold {style}][Observation] Result [{tag}][/bold {style}]"
         self.console.print(
             Panel(
                 obs.content,
@@ -82,7 +89,7 @@ class TerminalCognitionRenderer:
         self.console.print(
             Panel(
                 content,
-                title="[bold white on red] 💥 MIND BREAK: FAILURE DETECTED [/bold white on red]",
+                title="[bold white on red] [!] MIND BREAK: FAILURE DETECTED [/bold white on red]",
                 border_style="red",
                 padding=(1, 2),
             )
@@ -97,7 +104,7 @@ class TerminalCognitionRenderer:
         self.console.print(
             Panel(
                 content,
-                title="[bold black on green] 🛡️ SELF-HEAL: ADAPTIVE RECOVERY APPLIED [/bold black on green]",
+                title="[bold black on green] [+] SELF-HEAL: ADAPTIVE RECOVERY APPLIED [/bold black on green]",
                 border_style="green",
                 padding=(1, 2),
             )
@@ -111,7 +118,8 @@ class TerminalCognitionRenderer:
         table.add_column("Metric", style="white")
         table.add_column("Value", style="cyan")
 
-        table.add_row("Execution Status", f"[bold green]{trace.status.value.upper()}[/bold green]" if trace.status.value == "succeeded" else f"[bold red]{trace.status.value.upper()}[/bold red]")
+        status_style = "bold green" if trace.status.value == "succeeded" else "bold red"
+        table.add_row("Execution Status", f"[{status_style}]{trace.status.value.upper()}[/{status_style}]")
         table.add_row("Total Cognitive Steps", str(len(trace.steps)))
         table.add_row("Failures Detected & Classified", str(trace.total_failures_encountered))
         table.add_row("Self-Healing Recoveries Applied", str(trace.total_recoveries_applied))
@@ -123,7 +131,7 @@ class TerminalCognitionRenderer:
             self.console.print(
                 Panel(
                     trace.final_answer,
-                    title="[bold green]🏁 Final Resolution[/bold green]",
+                    title="[bold green]Final Resolution[/bold green]",
                     border_style="green",
                     padding=(1, 2),
                 )
@@ -132,7 +140,7 @@ class TerminalCognitionRenderer:
 
 
 def run_cli_session(task: str, inject_fault: Optional[str] = None) -> ExecutionTrace:
-    console = Console()
+    console = Console(highlight=False)
     renderer = TerminalCognitionRenderer(console)
     config = AgentConfig.from_env()
     engine = AgentEngine(config=config)

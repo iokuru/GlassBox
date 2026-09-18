@@ -23,6 +23,7 @@ from glassbox.types import (
     FailureRecord,
     FailureType,
     Observation,
+    RecoveryAction,
     RecoveryRecord,
     StepRecord,
     Thought,
