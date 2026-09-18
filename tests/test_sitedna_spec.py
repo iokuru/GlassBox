@@ -43,7 +43,7 @@ def test_confidence_summary_returns_string():
     summary = confidence_summary(result)
     assert isinstance(summary, str)
     assert "tokens" in summary
-    assert "█" in summary or "░" in summary
+    assert "#" in summary or "." in summary
 
 
 def test_missing_url_fails():
