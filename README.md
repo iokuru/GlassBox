@@ -165,24 +165,5 @@ apps/
 
 ```bash
 pytest tests/ -v
-# 71 passed in 23.58s
 ```
 
----
-
-## The Pitch
-
-Most agent frameworks give you:
-- A tool registry
-- A retry wrapper
-- Optimistic logging
-
-GlassBox gives you:
-- A **taxonomy** of failure (12 core types, 10 web types)
-- A **classifier** that tells you exactly which type occurred
-- A **recovery policy** per failure type
-- A **loop detector** that catches repetitive cycles before they waste budget
-- A **flight recorder** that persists every thought, action, and score to SQLite
-- A **visual verifier** that tells you, with numbers, whether the output is good
-
-*The live site is the ground truth. The diff is the objective function. GlassBox closes the loop.*
