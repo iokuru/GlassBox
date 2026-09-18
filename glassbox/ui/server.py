@@ -24,22 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-STATIC_DIR = Path(__file__).parent / "static"
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-
 class RunRequest(BaseModel):
     task: str
     fault_type: Optional[str] = None
 
 
 @app.get("/")
-def get_dashboard() -> FileResponse:
-    index_path = STATIC_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(status_code=404, detail="Dashboard UI not found.")
-    return FileResponse(str(index_path))
+def get_status() -> Dict[str, Any]:
+    return {"status": "ok", "service": "GlassBox API Server", "version": "0.2.0"}
+
 
 
 @app.post("/api/run")
