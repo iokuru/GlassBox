@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlassBox — Transparent Autonomous Debugging Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-badge">GB</div>
+        <div>
+          <h1>GlassBox</h1>
+          <p class="subtitle">An Agent That Shows You Its Mind Breaking and Fixing Itself</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-outline">ReAct + Failure Taxonomy</span>
+        <span class="badge badge-accent">Live Cognition Stream</span>
+      </div>
+    </header>
+
+    <!-- Metrics Bar -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Status</span>
+        <span id="metric-status" class="metric-value status-idle">IDLE</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Cognitive Steps</span>
+        <span id="metric-steps" class="metric-value">0</span>
+      </div>
+      <div class="metric-card danger">
+        <span class="metric-label">Mind Breaks (Failures)</span>
+        <span id="metric-failures" class="metric-value text-danger">0</span>
+      </div>
+      <div class="metric-card success">
+        <span class="metric-label">Self-Heal Recoveries</span>
+        <span id="metric-recoveries" class="metric-value text-success">0</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Execution Time</span>
+        <span id="metric-duration" class="metric-value">0 ms</span>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace-grid">
+      <!-- Left Panel: Controls & Inputs -->
+      <section class="panel control-panel">
+        <div class="panel-header">
+          <h2>Task Configuration</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="scenario-select">Preset Debugging Scenarios</label>
+          <select id="scenario-select" class="form-control">
+            <option value="fibonacci">1. Broken Fibonacci (RecursionError)</option>
+            <option value="rate_limit">2. Chaos: Upstream Search 429 Rate Limit (Tool Switching)</option>
+            <option value="stagnation">3. Stagnation Loop Trap (Loop Detector & Break)</option>
+            <option value="timeout">4. Subprocess Timeout Guard (Infinite Loop)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task-prompt">Task Directive / Broken Code</label>
+          <textarea id="task-prompt" class="form-control code-editor" rows="7"></textarea>
+        </div>
+
+        <div class="action-buttons">
+          <button id="btn-run" class="btn btn-primary">Run GlassBox</button>
+          <button id="btn-compare" class="btn btn-secondary">Compare vs LangChain</button>
+          <button id="btn-reset" class="btn btn-outline">Reset</button>
+        </div>
+
+        <div class="pitch-box">
+          <h3>The GlassBox Philosophy</h3>
+          <p>
+            <em>"We didn't build another wrapper &mdash; we built the thing the wrappers hide."</em>
+          </p>
+          <ul>
+            <li>Explicit failure taxonomy instead of swallowed exceptions</li>
+            <li>Loop detection via action similarity heuristics</li>
+            <li>Adaptive recovery: query mutation, tool redirect, loop-break</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Right Panel: Live Cognition Trace -->
+      <section class="panel trace-panel">
+        <div class="panel-header">
+          <h2>Live Cognition Trace</h2>
+          <div id="live-indicator" class="live-indicator hidden">
+            <span class="pulse-dot"></span> LIVE STREAMING
+          </div>
+        </div>
+
+        <div id="trace-stream" class="trace-stream">
+          <div class="empty-state">
+            <p>Select a scenario and click <strong>Run GlassBox</strong> to inspect the agent's cognition as it breaks and self-heals.</p>
+          </div>
+        </div>
+
+        <!-- Comparison Modal / Drawer -->
+        <div id="comparison-view" class="comparison-view hidden">
+          <div class="comparison-header">
+            <h3>Head-to-Head: GlassBox vs Standard ReAct (LangChain)</h3>
+            <button id="btn-close-comparison" class="btn-icon">&times;</button>
+          </div>
+          <div class="comparison-columns">
+            <div class="comp-col comp-glassbox">
+              <h4>🔮 GlassBox Runtime</h4>
+              <div id="comp-gb-body">Running...</div>
+            </div>
+            <div class="comp-col comp-langchain">
+              <h4>📦 Standard ReAct (LangChain Pattern)</h4>
+              <div id="comp-lc-body">Running...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
