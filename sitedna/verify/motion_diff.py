@@ -143,7 +143,7 @@ class MotionFidelityScorer:
         passed = "PASS" if result.get("passed") else "FAIL"
         overall = result.get("overall", 0)
         bar_filled = int(overall * 20)
-        bar = "█" * bar_filled + "░" * (20 - bar_filled)
+        bar = "#" * bar_filled + "." * (20 - bar_filled)
 
         lines = [
             f"Motion Fidelity: [{passed}]",

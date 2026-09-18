@@ -81,6 +81,6 @@ def confidence_summary(result: ValidationResult) -> str:
     parts = []
     for domain, score in result.confidence.items():
         bar_filled = int(score * 10)
-        bar = "█" * bar_filled + "░" * (10 - bar_filled)
+        bar = "#" * bar_filled + "." * (10 - bar_filled)
         parts.append(f"  {domain:10s} [{bar}] {score:.0%}")
     return "\n".join(parts)

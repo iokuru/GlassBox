@@ -95,7 +95,7 @@ class LayoutIoUScorer:
         passed = "PASS" if result.get("passed") else "FAIL"
         mean_iou = result.get("mean_iou", 0)
         bar_filled = int(mean_iou * 20)
-        bar = "█" * bar_filled + "░" * (20 - bar_filled)
+        bar = "#" * bar_filled + "." * (20 - bar_filled)
         lines = [
             f"Layout IoU: [{passed}]",
             f"  Mean [{bar}] {mean_iou:.1%}",

@@ -145,7 +145,7 @@ class VisualDiffScorer:
         ssim = result.get("ssim", 0)
         psnr = result.get("psnr", 0)
         bar_filled = int(ssim * 20)
-        bar = "█" * bar_filled + "░" * (20 - bar_filled)
+        bar = "#" * bar_filled + "." * (20 - bar_filled)
         report = [
             f"Visual Diff: [{passed}]",
             f"  SSIM  [{bar}] {ssim:.1%}",
