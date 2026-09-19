@@ -36,8 +36,5 @@ htmlcov/
 
 sandbox_workspace/
 
-# Generated outputs
-*-clone/
-*.sitedna.json
-eval/results/
 glassbox_trace.db
+

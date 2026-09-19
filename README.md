@@ -1,169 +1,96 @@
-# GlassBox · SiteDNA · CloneForge
+# GlassBox
 
-> **We didn't build another wrapper — we built the thing the wrappers hide.**
+> A transparent autonomous debugging agent runtime with explicit failure taxonomy, action loop detection, and self-healing recovery.
 
-Three tightly coupled systems. One thesis: LLM agents that know what they don't know build better things.
-
----
-
-## What's Here
-
-| System | What it does |
-|--------|-------------|
-| **GlassBox** | Failure-first agent runtime with explicit error taxonomy, loop detection, and self-healing recovery |
-| **SiteDNA** | CDP capture pipeline that extracts a website's design/motion system into a portable JSON spec |
-| **CloneForge** | Agent that uses both to clone a live site into a React + Tailwind + Framer Motion project |
-| **GlassBench** | Benchmark suite using the live site as ground truth — SSIM, palette ΔE, motion fidelity |
+GlassBox is built on a single premise: **LLM agents should not hide their failures behind opaque retry wrappers.** Instead, failures must be explicitly classified into an enumerable taxonomy, trapped before they exhaust token budgets, and resolved through deterministic self-healing policies.
 
 ---
 
-## Quick Start
+## Core Capabilities
 
-```bash
-# Install
-pip install -e ".[dev]"
-
-# Capture a site's DNA
-python -m apps.cloneforge capture https://structured.money -o structured.sitedna.json --mock
-
-# Generate React scaffold
-python -m apps.cloneforge clone https://structured.money -o ./structured-clone --mock
-
-# Run benchmarks
-python -m apps.cloneforge bench
-
-# Launch trace dashboard at http://127.0.0.1:8001
-python -m apps.cloneforge trace
-```
+- **Structured Failure Taxonomy**: 9 distinct failure types with severity levels, recovery strategies, and root-cause classification.
+- **Loop & Oscillation Detection**: Jaccard similarity heuristics and periodic cycle detection ($A \to B \to A \to B$) that break repetitive agent behaviors.
+- **Adaptive Self-Healing**: Dynamic tool switching, query mutation, AST patching, and hypothesis invalidation.
+- **Chaos Injection Harness**: Programmatic fault injection (rate limits, timeouts, malformed responses) to stress-test agent resiliency.
+- **Sandboxed Execution**: Subprocess-level isolation with AST pre-validation and hard timeout guards.
+- **Episodic Flight Recorder**: Append-only SQLite event log capturing every thought, action, observation, failure, and recovery with microsecond timestamps.
+- **Live Terminal & Streaming UI**: Rich-powered live cognition console and FastAPI WebSocket trace streamer.
 
 ---
 
 ## Architecture
 
 ```
-glassbox/               Failure runtime
-  failure/
-    taxonomy.py         Core error catalog (RUNTIME_EXCEPTION, LOOP_DETECTED, ...)
-    web_taxonomy.py     Web failures (BOT_WALL, CDP_DISCONNECT, VISUAL_REGRESSION, ...)
-    classifier.py       Pattern-based failure classifier
-    loop_detector.py    Jaccard similarity + oscillation detection
-    recovery.py         Recovery strategies (retry, replan, break loop, escalate)
-    injection.py        Chaos testing harness
-  observability/
-    trace_store.py      SQLite append-only event log
-    trace_server.py     FastAPI + WebSocket three-pane trace dashboard
-
-sitedna/                CDP capture → portable spec → React code
-  capture/
-    cdp_session.py      Playwright browser driver (MockCDPSession for offline)
-    dom_extractor.py    Layout tree + section classification
-    style_extractor.py  Computed styles + CSS variable resolver
-    font_fingerprinter.py  Stack heuristics + perceptual catalog matching
-    palette.py          OKLCH k-means clustering + WCAG contrast
-    motion_capture.py   getAnimations() + scroll regression (recovers parallax formulas)
-    asset_harvester.py  srcset, CSS-bg, inline SVG, video overlays
-    pipeline.py         Orchestrator: all stages → SiteDNA
-  spec/
-    schema.py           Pydantic v2 SiteDNA model (tokens, layout, motion, assets)
-    validate.py         Confidence scoring + warning list
-  codegen/
-    tokens.py           → tailwind.config.js + :root CSS variables
-    layout.py           → section components + App.tsx
-    motion.py           → Framer Motion variants + useScroll hooks
-    scaffold.py         → full Vite + React + TypeScript project
-  verify/
-    visual_diff.py      SSIM + heatmap + worst-region detection
-    palette_diff.py     ΔE CIE2000 color drift scorer
-    layout_iou.py       Bounding box IoU
-    motion_diff.py      Entry animation + scroll coefficient comparison
-    repair_loop.py      Closed-loop verifier → RepairTask list
-
-eval/
-  metrics.py            Failure F1, recovery rate, honesty score
-  fault_injection.py    Named web fault scenarios (bot_wall, cdp_disconnect, ...)
-  benchmark.py          Suite A (debugging) + Suite B (5 archetypes) + report
-
-apps/
-  cloneforge.py         CloneForge CLI: capture | clone | bench | trace
+glassbox/
+├── config.py             # Agent runtime configuration & environment loading
+├── engine.py             # ReAct cognitive loop orchestrator & step budgeting
+├── executor.py           # Sandboxed subprocess code execution with timeout guard
+├── memory.py             # Episodic memory and execution trace history
+├── planner.py            # ReAct reasoning planner & tool router
+├── provider.py           # LLM provider layer (MockDebuggingProvider / OpenAI)
+├── tool_registry.py      # Schema-validated tool registration engine
+├── types.py              # Pydantic core execution domain models
+├── comparison/
+│   └── langchain_baseline.py  # Head-to-head comparison vs naive ReAct agent
+├── failure/
+│   ├── classifier.py     # Traceback, status code, and exception pattern classifier
+│   ├── injection.py      # Chaos engineering fault injection harness
+│   ├── loop_detector.py  # Jaccard n-gram similarity & cycle oscillation detector
+│   ├── recovery.py       # Recovery policies (retry, switch tool, replan, break loop)
+│   └── taxonomy.py       # Failure catalog and taxonomy descriptors
+├── observability/
+│   ├── trace_server.py   # FastAPI WebSocket streaming server
+│   └── trace_store.py    # SQLite append-only event log
+├── tools/
+│   ├── code_sandbox.py   # Python execution tool wrapping the sandbox
+│   ├── doc_store.py      # In-memory documentation store
+│   └── web_search.py     # Mock search engine with query filtering
+└── ui/
+    ├── cli.py            # Rich terminal live cognition visualizer
+    └── server.py         # GlassBox API server
 ```
 
 ---
 
-## The Four Pillars
+## The Four Engineering Pillars
 
-| Pillar | How GlassBox addresses it |
-|--------|--------------------------|
-| **Maintainability** | Every module has one job. Failure taxonomy is a catalog, not scattered `if` blocks. Tests per module. |
-| **Reliability** | Explicit loop detection prevents infinite cycles. Recovery policies are enumerable and testable. Budget enforcement is a hard limit. |
-| **Code Coverage** | 71 tests across 12 test files, covering failure classification, recovery, memory, executor, codegen, verification scorers, and end-to-end pipeline. |
-| **AI Challenges** | GlassBench measures whether the agent's output meets objective standards (SSIM ≥ 0.75, ΔE ≤ 10, layout IoU ≥ 0.5). Honesty score penalises unreported failures. |
-
----
-
-## Benchmark Results (Suite B Archetypes)
-
-| Archetype | Grade | SSIM | ΔE | IoU |
-|-----------|-------|------|----|-----|
-| dark_editorial | B | 0.61 | 8.0 | 0.65 |
-| saas_minimal | B | 0.66 | 8.0 | 0.65 |
-| portfolio_scroll | C | 0.60 | 8.0 | 0.65 |
-| ecommerce_product | C | 0.55 | 8.0 | 0.65 |
-| agency_parallax | C | 0.58 | 8.0 | 0.65 |
-
-*Scores improve with live Playwright capture and GlassBench repair loop enabled.*
+| Pillar | Architectural Implementation |
+|---|---|
+| **Maintainability** | Strict separation of concerns. Every failure policy is registered in a central taxonomy catalog rather than scattered `try/except` blocks. |
+| **Reliability** | Hard step budgets prevent runaway execution. Cycle oscillation detectors catch alternating tool traps. Sandbox timeouts kill frozen subprocesses. |
+| **Observability** | Every cognitive event (`thought`, `action`, `observation`, `failure`, `recovery`) is persisted to an immutable SQLite flight recorder. |
+| **Resilience** | Proven recovery against upstream HTTP 429 rate limits, infinite recursions, syntax errors, and missing tools. |
 
 ---
 
-## SiteDNA Format
+## Getting Started
 
-```json
-{
-  "sitedna": "0.1",
-  "source": { "url": "https://structured.money/", "viewport": [1440, 900] },
-  "tokens": {
-    "palette": [
-      { "role": "bg.base", "oklch": "0.18 0.01 260", "hex": "#141517" },
-      { "role": "fg.primary", "oklch": "0.96 0.01 90", "hex": "#f4f1ea" }
-    ],
-    "type": {
-      "display": {
-        "stack": ["EB Garamond", "Georgia", "serif"],
-        "matched": { "family": "EB Garamond", "score": 0.94 }
-      }
-    }
-  },
-  "motion": {
-    "scroll_linked": [
-      { "target": "fighter-jet", "formula": "scrollY * -0.05" },
-      { "target": "eagle", "formula": "scrollY * -0.07" }
-    ]
-  },
-  "provenance": {
-    "confidence": { "tokens": 0.85, "layout": 0.75, "motion": 0.7 },
-    "unresolved": ["WebGL background cannot be reproduced via DOM inspection"]
-  }
-}
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/iokuru/GlassBox.git
+cd GlassBox
+
+# Install in editable mode
+pip install -e ".[dev]"
 ```
 
----
+### Quick Run
 
-## GlassBench Metrics
+```bash
+# Run the interactive demo runner
+python -m scenarios.demo_runner
 
-| Metric | Measures |
-|--------|----------|
-| **SSIM** | Pixel-level visual fidelity |
-| **Palette ΔE** | Color reproduction accuracy (CIE2000) |
-| **Layout IoU** | Section bounding box overlap |
-| **Motion Fidelity** | Entry animations + scroll coefficients + parallax |
-| **Failure F1** | Did the agent detect the right failure types? |
-| **Recovery Rate** | Of injected failures, how many did it recover from? |
-| **Honesty Score** | Does it report what it couldn't reproduce? |
+# Launch the Rich terminal live visualizer
+python -m glassbox.ui.cli
 
----
+# Launch the trace server
+glassbox-trace
+```
 
-## Running Tests
+### Running Tests
 
 ```bash
 pytest tests/ -v
 ```
-
